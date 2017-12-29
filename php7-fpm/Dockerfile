@@ -39,7 +39,7 @@ RUN echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-x
 
 RUN echo 'alias sf="php app/console"' >> ~/.bashrc
 RUN echo 'alias sf3="php bin/console"' >> ~/.bashrc
-RUN echo 'alias phpunit="php bin/phpunit"' >> ~/.bashrc
+RUN echo 'alias phpunit="php bin/simple-phpunit"' >> ~/.bashrc
 
 WORKDIR /var/www/symfony
 
