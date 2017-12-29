@@ -1,0 +1,67 @@
+version: '2'
+
+services:
+    db:
+        image: mysql
+        volumes:
+            - "./.data/db:/var/lib/mysql"
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    php:
+        build:
+            context: php7-fpm
+            args:
+                TIMEZONE: ${TIMEZONE}
+                INSTALL_SYMPHONY: ${INSTALL_SYMPHONY}
+                SYMPHONY_VERSION: ${SYMPHONY_VERSION}
+        volumes:
+            - ${SYMFONY_APP_PATH}:/var/www/symfony
+            - ./logs/symfony:/var/www/symfony/app/logs
+    nginx:
+        build: nginx
+        ports:
+            - 9005:80
+        volumes_from:
+            - php
+        volumes:
+            - ./logs/nginx/:/var/log/nginx
+    elk:
+        image: willdurand/elk
+        ports:
+            - 9002:80
+        volumes:
+            - ./elk/logstash:/etc/logstash
+            - ./elk/logstash/patterns:/opt/logstash/patterns
+        volumes_from:
+            - php
+            - nginx
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - 9003:80
+        links:
+            - db
+        environment:
+            PMA_HOST: db
+
+    mailcatcher:
+        image: jderusse/mailcatcher
+        ports:
+            - 9004:80
+        expose:
+            - 25
+
+    sonarqube:
+        build:
+            context: ./sonar
+        ports:
+            - "9006:9000"
+        links:
+            - db
+        env_file: .env
+        restart: always
+        volumes:
+            - ./.data/sonarqube:/opt/sonarqube
