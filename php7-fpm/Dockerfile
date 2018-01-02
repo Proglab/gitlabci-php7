@@ -20,7 +20,9 @@ RUN printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/con
 RUN "date"
 
 # Type docker-php-ext-install to see available extensions
-RUN docker-php-ext-install pdo pdo_mysql zip
+RUN docker-php-ext-install pdo pdo_mysql
+RUN apt-get install -y zlib1g-dev \
+    && docker-php-ext-install zip
 
 
 # install xdebug
